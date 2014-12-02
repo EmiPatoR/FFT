@@ -1,9 +1,9 @@
 //============================================================================
-// Name        : FFT.cpp
+// Name        : main.cpp
 // Author      : HRUSTIC Emir
 // Version     :
-// Copyright   : 
-// Description : Hello World in C++, Ansi-style
+// Copyright   :
+// Description : Fast Fourier Transform in C++, Ansi-style
 //============================================================================
 
 #include <iostream>
