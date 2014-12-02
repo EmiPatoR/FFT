@@ -8,15 +8,26 @@
 
 #include <iostream>
 #include <complex>
+
+#include "Polynomial.h"
+#include "FFT.h"
+
 using namespace std;
 
-const double PI = 3.141592653589793238463;
-const float  PI_F = 3.14159265358979f;
 
-int main() {
+int main(int argc, char* argv[]) {
 
-	complex<double> racineUnite(cos(2*PI/3),sin(2*PI/3));
+	const int N = 4;
 
-	cout << "Racine unite :" << pow(racineUnite,3) << endl; // prints
+	const double coefs_A[N] = {1,2,3,4};
+	const double coefs_B[N] = {1,1,1,1};
+
+	Polynomial pA = Polynomial(coefs_A,N);
+	Polynomial pB = Polynomial(coefs_B,N);
+
+	FFT f = FFT(&pA,&pB);
+
+
+	cout << "Racine unite :" << f.getPA()->getCoefs(3) << endl; // prints
 	return 0;
 }
