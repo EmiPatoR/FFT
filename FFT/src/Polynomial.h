@@ -11,9 +11,7 @@
 #include <string>
 #include <complex>
 #include <iostream>
-
-template <class T> class Polynomial;
-template <class T> std::ostream& operator<<( std::ostream &flux, Polynomial<T> const& p );
+#include <vector>
 
 template <class T>
 class Polynomial {
@@ -33,8 +31,10 @@ public:
 	virtual ~Polynomial();
 	Polynomial<T>& operator+=(const Polynomial<T> &p);
 	Polynomial<T>& operator*=(const Polynomial<T> &p);
+	Polynomial<T>& operator*=(const T v);
 	const Polynomial<T> operator+(const Polynomial<T> &other) const;
 	const Polynomial<T> operator*(const Polynomial<T> &other) const;
+	const Polynomial<T> operator*(const T other) const;
 	void show(std::ostream &flux) const;
 	T Eval_Horner(T x,int i);
 	static int computeDegree(const Polynomial<T>& P);
@@ -55,6 +55,7 @@ public:
 
 };
 
+#include "FFT.h"
 
 template <class T>
 Polynomial<T>::Polynomial() {
@@ -98,7 +99,7 @@ Polynomial<T>::Polynomial(const Polynomial<T>& p) {
 template <class T>
 Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T> &p) {
 	if(this->m_length >= p.m_length){
-		for(int i=0;i<p.m_length;i++){
+		for(int i=0;i<this->m_length;i++){
 			this->m_coefs[i] = this->m_coefs[i] + p.m_coefs[i];
 		}
 	}
@@ -121,25 +122,55 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T> &p) {
 
 template <class T>
 Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T> &p) {
-	if(this->m_length >= p.m_length){
-		for(int i=0;i<p.m_length;i++){
-			this->m_coefs[i] = this->m_coefs[i] + p.m_coefs[i];
+
+
+	std::vector<std::complex<double> > evalA(2*p.m_length);
+	std::vector<std::complex<double> > evalB(2*p.m_length);
+	std::vector<std::complex<double> > evalC(2*p.m_length);
+	Polynomial<T> pC(2*p.m_length,"C");
+	Polynomial<T> *copie_pA = this;
+	Polynomial<T> copie_pB = p;
+
+	FFT f(p.m_length);
+
+	T* new_coefs_A = new T[2*p.m_length]();
+	T* new_coefs_B = new T[2*p.m_length]();
+	for(int i=0;i<2*p.m_length;i++){
+		if (i<p.m_length){
+		new_coefs_A[i] = copie_pA->m_coefs[i];
+		new_coefs_B[i] = copie_pB.m_coefs[i];
+		}
+		else{
+			new_coefs_A[i] = T();
+			new_coefs_B[i] = T();
 		}
 	}
-	else{
-		T new_coefs = new T[p.m_length]();
-		for(int i=0;i<p.m_length;i++){
-			if(i <= (this->m_length - 1))
-				new_coefs[i] = this->m_coefs[i] + p.m_coefs[i];
-			else
-				new_coefs[i] = p.m_coefs[i];
-		}
-		this->m_length = p.m_length;
-		delete[] this->m_coefs;
-		this->m_coefs = NULL;
-		this->m_coefs = new_coefs;
+	delete copie_pA->m_coefs;
+	delete copie_pB.m_coefs;
+	copie_pA->m_coefs = new_coefs_A;
+	copie_pB.m_coefs = new_coefs_B;
+	copie_pA->m_length = 2*copie_pA->m_length;
+	copie_pB.m_length = 2*copie_pB.m_length;
+
+	evalA = f.rec_FFT(copie_pA);
+	evalB = f.rec_FFT(&copie_pB);
+
+	for(unsigned int i=0;i<evalA.size();i++)
+		evalC[i] = evalA[i]*evalB[i];
+
+	f.inverse_FFT(evalC,copie_pA);
+
+	this->m_degree = computeDegree(*this);
+	this->m_nom = this->m_nom + "*" + p.m_nom;
+	return *this;
+}
+
+template <class T>
+Polynomial<T>& Polynomial<T>::operator*=(const T v) {
+	for(int i=0;i<this->m_length;i++){
+		this->m_coefs[i] = this->m_coefs[i] * v;
 	}
-	this->m_nom = this->m_nom + "+" + p.m_nom;
+	//this->m_nom = this->m_nom + "*" + v.;
 	return *this;
 }
 
@@ -150,6 +181,11 @@ const Polynomial<T> Polynomial<T>::operator+(const Polynomial<T> &other) const {
 
 template <class T>
 const Polynomial<T> Polynomial<T>::operator*(const Polynomial<T> &other) const {
+	return Polynomial<T>(*this) *= other;
+}
+
+template <class T>
+const Polynomial<T> Polynomial<T>::operator*(const T other) const {
 	return Polynomial<T>(*this) *= other;
 }
 

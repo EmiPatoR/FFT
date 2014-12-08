@@ -28,9 +28,9 @@ public:
 	FFT(int);
 	virtual ~FFT();
 	template <class T>
-	std::vector<std::complex<double> > rec_FFT(Polynomial<T>* P);
+	static std::vector<std::complex<double> > rec_FFT(Polynomial<T>* P);
 	template <class T>
-	void inverse_FFT(const std::vector<std::complex<double> > C, Polynomial<T>* pC);
+	static void inverse_FFT(const std::vector<std::complex<double> > C, Polynomial<T>* pC);
 	std::complex<double> getUnityRoot(int num);
 };
 
