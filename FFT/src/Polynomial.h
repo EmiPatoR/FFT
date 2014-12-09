@@ -123,35 +123,41 @@ Polynomial<T>& Polynomial<T>::operator+=(const Polynomial<T> &p) {
 template <class T>
 Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T> &p) {
 
+	int size = std::max(this->m_length,p.m_length);
 
-	std::vector<std::complex<double> > evalA(2*p.m_length);
-	std::vector<std::complex<double> > evalB(2*p.m_length);
-	std::vector<std::complex<double> > evalC(2*p.m_length);
-	Polynomial<T> pC(2*p.m_length,"C");
+	std::vector<std::complex<double> > evalA(2*size);
+	std::vector<std::complex<double> > evalB(2*size);
+	std::vector<std::complex<double> > evalC(2*size);
+	Polynomial<T> pC(2*size,"C");
 	Polynomial<T> *copie_pA = this;
 	Polynomial<T> copie_pB = p;
 
-	FFT f(p.m_length);
+	FFT f(size);
 
-	T* new_coefs_A = new T[2*p.m_length]();
-	T* new_coefs_B = new T[2*p.m_length]();
-	for(int i=0;i<2*p.m_length;i++){
-		if (i<p.m_length){
-		new_coefs_A[i] = copie_pA->m_coefs[i];
-		new_coefs_B[i] = copie_pB.m_coefs[i];
-		}
-		else{
+	T* new_coefs_A = new T[2*size]();
+	T* new_coefs_B = new T[2*size]();
+
+	for(int i=0;i<2*size;i++){
+
+		if (i<copie_pA->m_length)
+			new_coefs_A[i] = copie_pA->m_coefs[i];
+		else
 			new_coefs_A[i] = T();
+
+		if (i<copie_pB.m_length)
+			new_coefs_B[i] = copie_pB.m_coefs[i];
+		else
 			new_coefs_B[i] = T();
-		}
+
 	}
+
 	delete [] copie_pA->m_coefs;
 	delete [] copie_pB.m_coefs;
 
 	copie_pA->m_coefs = new_coefs_A;
 	copie_pB.m_coefs = new_coefs_B;
-	copie_pA->m_length = 2*copie_pA->m_length;
-	copie_pB.m_length = 2*copie_pB.m_length;
+	copie_pA->m_length = 2*size;
+	copie_pB.m_length = 2*size;
 
 	evalA = f.rec_FFT(copie_pA);
 	evalB = f.rec_FFT(&copie_pB);

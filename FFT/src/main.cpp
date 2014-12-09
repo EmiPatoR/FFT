@@ -40,6 +40,17 @@ int main(int argc, char* argv[]) {
 	Polynomial<std::complex<double> > pA(coefs_A,N,"A");
 	Polynomial<std::complex<double> > pB(coefs_B,N,"B");
 
+	cout << " _________________________________________________________________" << endl <<
+	        "/                                                                 |" << endl <<
+	        "|                                                                 |" << endl <<
+		  	"|                  TP : Fast Fourier Transform (FFT)              |" << endl <<
+		  	"|                                                                 |" << endl <<
+		  	"|                                                                 |" << endl <<
+		  	"|   Author : HRUSTIC Emir                                 M2 - IF |" << endl <<
+		  	"|_________________________________________________________________/" << endl
+		  	<<endl << endl;
+
+
 
 	cout << "Polynome : " << pA << endl; // A
 	cout << "Polynome : " << pB << endl; // B
