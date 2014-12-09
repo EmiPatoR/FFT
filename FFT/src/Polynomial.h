@@ -145,8 +145,9 @@ Polynomial<T>& Polynomial<T>::operator*=(const Polynomial<T> &p) {
 			new_coefs_B[i] = T();
 		}
 	}
-	delete copie_pA->m_coefs;
-	delete copie_pB.m_coefs;
+	delete [] copie_pA->m_coefs;
+	delete [] copie_pB.m_coefs;
+
 	copie_pA->m_coefs = new_coefs_A;
 	copie_pB.m_coefs = new_coefs_B;
 	copie_pA->m_length = 2*copie_pA->m_length;
